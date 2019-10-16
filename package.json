@@ -1,0 +1,28 @@
+{
+  "name": "calculaid",
+  "version": "1.0.0",
+  "description": "bread units calculator",
+  "author": "Oleg Naumov <oleg.naumov.98@mail.ru>",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "precommit": "npm run lint"
+  },
+  "dependencies": {
+    "natural": "^0.6.3",
+    "nuxt": "^2.0.0",
+    "stopword": "^0.3.3",
+    "wordnet-db": "^3.1.11"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^4.19.1",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-vue": "^4.0.0"
+  }
+}
