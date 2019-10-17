@@ -21,7 +21,7 @@
           <b>{{ productsData.quantity[index][0] }}</b>
         </div>
         <div v-for="(product, idx) in products" :key="idx" class="box">
-          {{ product }}
+          {{ getProductById(product).name }}
         </div>
       </div>
     </div>
@@ -29,6 +29,7 @@
 </template>
 <script>
 import speechToText from '../modules/stemmer'
+import productsList from '../static/data/products'
 
 export default {
   components: {},
@@ -41,12 +42,19 @@ export default {
 
   mounted() {
     this.processSpeech()
+    console.log(productsList.length);
+    // console.log(productsList[0].name);
+    console.log(this.getProductById(1));
+    console.log(this.getProductById(2));
   },
 
   methods: {
     processSpeech() {
       this.productsData = speechToText(this.speech)
-      console.log(this.productsData);
+    },
+
+    getProductById(id) {
+      return productsList.find(product => product.id === id)
     }
   }
 }

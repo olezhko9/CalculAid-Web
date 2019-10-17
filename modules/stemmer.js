@@ -59,29 +59,21 @@ export default function(speech) {
   }
 // console.log(products)
 
-
-// search products in data
-//   let productsList = []
-//   try {
-//     productsList = JSON.parse(fs.readFileSync('./data/products.json'))
-//   } catch (err) {
-//     console.log(err)
-//   }
-
-  for (let i = 0; i < productsList.length; i++) {
-    let product = productsList[i]
+  const _productList = JSON.parse(JSON.stringify(productsList))
+  for (let i = 0; i < _productList.length; i++) {
+    let product = _productList[i]
     let stemmedProduct = product.name.toLowerCase().split(' ').map(natural.PorterStemmerRu.stem).join(' ')
-    productsList[i].name = stemmedProduct
+    _productList[i].name = stemmedProduct
   }
 
   let matchesForProductsInSpeech = []
   for (let i = 0; i < products.length; i++) {
     let productInSpeech = products[i].slice(-1)[0]
 
-    let matches = productsList.reduce((arr, productInData) => {
+    let matches = _productList.reduce((arr, productInData) => {
       const dist = natural.JaroWinklerDistance(productInSpeech, productInData.name)
       if (dist >= 0.80) {
-        arr.push(productInData.name)
+        arr.push(productInData.id)
       }
       return arr
     }, [])
