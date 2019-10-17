@@ -15,6 +15,7 @@
   "dependencies": {
     "natural": "^0.6.3",
     "nuxt": "^2.0.0",
+    "nuxt-buefy": "^0.3.16",
     "stopword": "^0.3.3",
     "wordnet-db": "^3.1.11"
   },
