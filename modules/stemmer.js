@@ -3,9 +3,8 @@ const natural = require('natural');
 const sw = require('stopword')
 const productsList = require('../static/data/products.json')
 
-export default function() {
+export default function(speech) {
   console.time('Program')
-  const speech = "Я съела 2 куска хлеба еще я съел десять ложек риса а также выпил двести миллилитров сока и еще я съел одно яблоко"
 
 // remove stop words
   const ruStopWords = ['также']
@@ -81,7 +80,7 @@ export default function() {
 
     let matches = productsList.reduce((arr, productInData) => {
       const dist = natural.JaroWinklerDistance(productInSpeech, productInData.name)
-      if (dist >= 0.75) {
+      if (dist >= 0.80) {
         arr.push(productInData.name)
       }
       return arr
@@ -89,7 +88,7 @@ export default function() {
 
     matchesForProductsInSpeech.push(matches)
   }
-  console.log(matchesForProductsInSpeech);
+  // console.log(matchesForProductsInSpeech);
 
 
 // get quantity of product
@@ -98,10 +97,15 @@ export default function() {
     const quantity = product[0]
     productsQuantity.push([quantity])
   })
-  console.log(productsQuantity)
+  // console.log(productsQuantity)
 
   console.timeEnd('Program')
 
 // TODO: calculate distance for each word in product name
 // console.log(natural.JaroWinklerDistance("рис отварн", "варен"));
+
+  return {
+    products: matchesForProductsInSpeech,
+    quantity: productsQuantity
+  }
 }
