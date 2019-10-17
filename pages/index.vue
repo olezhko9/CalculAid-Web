@@ -5,12 +5,12 @@
       <b-field expanded>
         <b-field>
           <b-input v-model="speech" expanded></b-input>
-          <b-button icon-left="microphone" type="is-primary"></b-button>
+          <b-button icon-left="microphone" type="is-primary" @click="listen"></b-button>
         </b-field>
       </b-field>
 
       <b-field>
-          <button class="button is-primary" @click="processSpeech">Расчитать</button>
+          <b-button type="is-primary" @click="processSpeech">Расчитать</b-button>
       </b-field>
 
     </b-field>
@@ -56,6 +56,21 @@ export default {
 
     getProductById(id) {
       return productsList.find(product => product.id === id)
+    },
+
+    listen() {
+      window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      let recognition = new window.SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 5;
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        console.log(event)
+        this.speech = event.results[0][0].transcript;
+        this.processSpeech()
+      };
     }
   }
 }
