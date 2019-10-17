@@ -15,6 +15,10 @@
 
     </b-field>
 
+    <div>
+      <h1 class="title is-1 has-text-centered">{{ breadUnits }} XE</h1>
+    </div>
+
     <div class="columns is-multiline products">
       <div v-for="(products, index) in productsData.products" :key="index" class="column is-3">
         <div class="box">
@@ -41,7 +45,8 @@ export default {
   data() {
     return {
       speech: "Я съела 2 куска хлеба еще я съел десять ложек риса а также выпил двести миллилитров сока и еще я съел одно яблоко",
-      productsData: { products: [], quantity: [] }
+      productsData: { products: [], quantity: [] },
+      breadUnits: 0
     }
   },
 
@@ -51,7 +56,11 @@ export default {
 
   methods: {
     processSpeech() {
+      this.breadUnits = 0
       this.productsData = speechToText(this.speech)
+      this.productsData.products.forEach(products => {
+        this.breadUnits += this.getProductById(products[0]).pfc.c
+      })
     },
 
     getProductById(id) {
