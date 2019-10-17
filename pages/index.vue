@@ -21,7 +21,12 @@
           <b>{{ productsData.quantity[index][0] }}</b>
         </div>
         <div v-for="(product, idx) in products" :key="idx" class="box">
-          {{ getProductById(product).name }}
+          <b>{{ getProductById(product).name }}</b>
+          <div class="columns is-mobile">
+            <div class="column">Б: {{ getProductById(product).pfc.p }}</div>
+            <div class="column">Ж: {{ getProductById(product).pfc.f }}</div>
+            <div class="column">У: {{ getProductById(product).pfc.c }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -42,10 +47,6 @@ export default {
 
   mounted() {
     this.processSpeech()
-    console.log(productsList.length);
-    // console.log(productsList[0].name);
-    console.log(this.getProductById(1));
-    console.log(this.getProductById(2));
   },
 
   methods: {
