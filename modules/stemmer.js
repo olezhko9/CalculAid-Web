@@ -1,7 +1,7 @@
 // stemmer testing without react-native in node.js
 const natural = require('natural');
 const sw = require('stopword')
-const productsList = require('../static/data/products.json')
+const productsList = require('../static/data/data.json')
 
 export default function(speech) {
   console.time('Program')
@@ -40,10 +40,11 @@ export default function(speech) {
       }
     }
   }
-// console.log(stemmedSpeech);
+  console.log("Stemmed speech")
+  console.log(stemmedSpeech);
 
 
-// split by verb
+  // split by verb
   const actionVerbs = ['выпил', 'съел', 'скушал', 'покушал', 'перекусил'].map(natural.PorterStemmerRu.stem)
 
   let speechActionIndexes = stemmedSpeech.reduce((arr, word, i) => {
@@ -57,7 +58,8 @@ export default function(speech) {
   for (let i = 0; i < speechActionIndexes.length; i++) {
     products.push(stemmedSpeech.slice(speechActionIndexes[i] + 1, speechActionIndexes[i + 1]))
   }
-// console.log(products)
+  console.log("Продукты в речи");
+  console.log(products)
 
   const _productList = JSON.parse(JSON.stringify(productsList))
   for (let i = 0; i < _productList.length; i++) {
@@ -68,22 +70,29 @@ export default function(speech) {
 
   let matchesForProductsInSpeech = []
   for (let i = 0; i < products.length; i++) {
+    // get product name from part of speech here
     let productInSpeech = products[i].slice(-1)[0]
 
     let matches = _productList.reduce((arr, productInData) => {
       const dist = natural.JaroWinklerDistance(productInSpeech, productInData.name)
       if (dist >= 0.80) {
-        arr.push(productInData.id)
+        arr.push({
+          id: productInData.id,
+          confidence: dist
+        })
       }
       return arr
+        .sort((a, b) => { return a.confidence - b.confidence })
+        .reverse()
     }, [])
 
     matchesForProductsInSpeech.push(matches)
   }
-  // console.log(matchesForProductsInSpeech);
+  console.log("Совпадения продуктов для продуктов в речи");
+  console.log(matchesForProductsInSpeech);
 
 
-// get quantity of product
+  // get quantity of product
   let productsQuantity = []
   products.forEach(product => {
     const quantity = product[0]
@@ -93,8 +102,8 @@ export default function(speech) {
 
   console.timeEnd('Program')
 
-// TODO: calculate distance for each word in product name
-// console.log(natural.JaroWinklerDistance("рис отварн", "варен"));
+  // TODO: calculate distance for each word in product name
+  // console.log(natural.JaroWinklerDistance("рис отварн", "варен"));
 
   return {
     products: matchesForProductsInSpeech,

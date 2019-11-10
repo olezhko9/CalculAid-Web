@@ -16,7 +16,7 @@
     </b-field>
 
     <div>
-      <h1 class="title is-1 has-text-centered">{{ breadUnits }} XE</h1>
+      <h1 class="title is-1 has-text-centered">{{ breadUnits.toFixed(2) }} XE</h1>
     </div>
 
     <div class="columns is-multiline products">
@@ -25,11 +25,11 @@
           <b>{{ productsData.quantity[index][0] }}</b>
         </div>
         <div v-for="(product, idx) in products" :key="idx" class="box">
-          <b>{{ getProductById(product).name }}</b>
+          <b>{{ getProductById(product.id).name }}</b>
           <div class="columns is-mobile">
-            <div class="column">Б: {{ getProductById(product).pfc.p }}</div>
-            <div class="column">Ж: {{ getProductById(product).pfc.f }}</div>
-            <div class="column">У: {{ getProductById(product).pfc.c }}</div>
+            <div class="column">Б: {{ getProductById(product.id).pfc.p }}</div>
+            <div class="column">Ж: {{ getProductById(product.id).pfc.f }}</div>
+            <div class="column">У: {{ getProductById(product.id).pfc.c }}</div>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
 </template>
 <script>
 import speechToText from '../modules/stemmer'
-import productsList from '../static/data/products'
+import productsList from '../static/data/data'
 
 export default {
   components: {},
@@ -59,7 +59,7 @@ export default {
       this.breadUnits = 0
       this.productsData = speechToText(this.speech)
       this.productsData.products.forEach(products => {
-        this.breadUnits += this.getProductById(products[0]).pfc.c
+        this.breadUnits += this.getProductById(products[0].id).pfc.c
       })
     },
 
