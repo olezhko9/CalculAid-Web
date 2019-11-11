@@ -2,7 +2,7 @@ const sw = require('stopword')
 const productsList = require('../static/data/data.json')
 const MyStem = require('mystem3')
 
-const speechText = "Короче Я съела 2 куска хлеба еще я съел десять ложек варенного риса а еще выпил двести миллилитров апельсинного сока и еще я съел одно яблоко"
+const speechText = "Короче Я съела 2 куска хлеба еще я съел десять столовых ложек варенного риса а еще выпил двести миллилитров апельсинного сока и еще выпил стакан молока а еще я съел одно яблоко"
 const myStem = new MyStem();
 
 
@@ -24,16 +24,19 @@ async function speechToProducts(speechText, stemmer) {
 
     for (let i = 0; i < possibleProductsPart.length; i++) {
       const word = possibleProductsPart[i]
-      console.log("\n", word);
+      // console.log("\n", word);
       try {
         let grammeme = await stemmer.extractAllGrammemes(word)
         possibleProductsPart[i] = getWordInfoByGrammeme(word, grammeme)
         console.log(grammeme);
+        console.log(possibleProductsPart[i]);
+        console.log()
       } catch (e) {
         console.log(e);
         stemmer.stop()
       }
     }
+    console.log('--------------------------------------------------------')
   }
   stemmer.stop()
 
@@ -54,41 +57,78 @@ function removeStopWords(speech) {
 function getWordInfoByGrammeme(word, grammeme) {
   return {
     word,
-    partOfSpeech: getPartOfSpeech(grammeme)
+    lemma: grammeme[0],
+    partOfSpeech: getPartOfSpeech(grammeme),
+    case: getNounCase(grammeme)
   }
 }
 
 function getPartOfSpeech(grammeme) {
-  if (!Array.isArray(grammeme)) return;
+  // определяем часть речи
+  if (!isNaN(grammeme)) return "числ"
+  if (!Array.isArray(grammeme)) return null;
   let partOfSpeech = null
 
   switch (grammeme[1].split('=')[0]) {
     case 'S':
-      partOfSpeech = "Существительное";
+      partOfSpeech = "сущ";
       break;
     case 'V': {
       if (~grammeme.indexOf('partcp')) {
-        partOfSpeech = "Причастие";
+        partOfSpeech = "прич";
       } else if (~grammeme.indexOf('get')) {
-        partOfSpeech = "Деепричастие"
+        partOfSpeech = "дееприч"
       } else {
-        partOfSpeech = "Глагол";
+        partOfSpeech = "глаг";
       }
       break;
     }
     case 'A':
-      partOfSpeech = "Прилагательное";
+      partOfSpeech = "прил";
       break;
     case 'NUM':
-      partOfSpeech = "Числительное";
+      partOfSpeech = "числ";
       break;
     case 'ADV':
-      partOfSpeech = "Наречие";
+      partOfSpeech = "нар";
       break;
     default:
       break;
   }
 
-  console.log(partOfSpeech);
   return partOfSpeech
+}
+
+
+function getNounCase(grammeme) {
+  // падеж для существительного
+  let wordCase = null
+  if (getPartOfSpeech(grammeme) === "сущ") {
+    for (let value of grammeme) {
+      let [_, nounCase] = value.split('=')
+      switch (nounCase) {
+        case 'nom':
+          wordCase = 'им';
+          break;
+        case 'gen':
+          wordCase = 'род';
+          break;
+        case 'dat':
+          wordCase = 'дат';
+          break;
+        case 'acc':
+          wordCase = 'вин';
+          break;
+        case 'ins':
+          wordCase = 'твор';
+          break;
+        case 'abl':
+          wordCase = 'пр';
+          break;
+        default:
+          break
+      }
+    }
+  }
+  return wordCase
 }
