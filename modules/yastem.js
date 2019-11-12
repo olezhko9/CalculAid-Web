@@ -2,7 +2,13 @@ const sw = require('stopword')
 const productsList = require('../static/data/data.json')
 const MyStem = require('mystem3')
 
-const speechText = "Короче Я съела 2 куска хлеба еще я съел десять столовых ложек варенного риса а еще выпил двести миллилитров апельсинного сока и еще выпил стакан молока а еще я съел одно яблоко"
+const speechText =
+  "Короче Я съела 2 куска хлеба " +
+  "еще я съел десять столовых ложек варенного риса " +
+  "а еще выпил двести миллилитров апельсинного сока " +
+  "и еще выпил стакан молока " +
+  "а еще я съел одно яблоко"
+
 const myStem = new MyStem();
 
 
@@ -18,32 +24,74 @@ async function speechToProducts(speechText, stemmer) {
   console.log(splittedSpeech);
 
   // extract all grammemes for each word in each part
-  stemmer.start();
-  for (let possibleProductsPart of splittedSpeech) {
-    possibleProductsPart = possibleProductsPart.split(' ')
+  let possibleProductsAndMeasures = []
 
-    for (let i = 0; i < possibleProductsPart.length; i++) {
-      const word = possibleProductsPart[i]
-      // console.log("\n", word);
+  stemmer.start();
+  for (let subSpeech of splittedSpeech) {
+    subSpeech = subSpeech.split(' ')
+
+    for (let i = 0; i < subSpeech.length; i++) {
+      const word = subSpeech[i]
       try {
         let grammeme = await stemmer.extractAllGrammemes(word)
-        possibleProductsPart[i] = getWordInfoByGrammeme(word, grammeme)
-        console.log(grammeme);
-        console.log(possibleProductsPart[i]);
-        console.log()
+        subSpeech[i] = getWordInfoByGrammeme(word, grammeme)
       } catch (e) {
         console.log(e);
         stemmer.stop()
       }
     }
-    console.log('--------------------------------------------------------')
+    possibleProductsAndMeasures.push(subSpeech)
   }
   stemmer.stop()
 
+  let productsAndMeasures = []
+  // remove unnecessary parts of speech
+  for (let possibleProductAndMeasure of possibleProductsAndMeasures) {
+    for (let i = 0; i < possibleProductAndMeasure.length; i++) {
+      const word = possibleProductAndMeasure[i];
+      if (
+        word.partOfSpeech !== 'сущ' &&
+        word.partOfSpeech !== 'прил' &&
+        word.partOfSpeech !== 'прич' &&
+        word.partOfSpeech !== 'числ'
+      ) {
+        possibleProductAndMeasure.splice(i, 1)
+        i--;
+      }
+    }
+
+    const numeralIndex = possibleProductAndMeasure.findIndex(x => x.partOfSpeech === 'числ')
+    if (numeralIndex !== -1) {
+      possibleProductAndMeasure = possibleProductAndMeasure.slice(numeralIndex)
+    }
+
+    const firstNounIndex = possibleProductAndMeasure.findIndex(x =>
+      x.partOfSpeech === 'сущ' && (
+      x.case === 'род' || x.case === 'вин' || x.case === 'им')
+    )
+    console.log(firstNounIndex);
+
+    if (firstNounIndex === 0 && possibleProductAndMeasure.length === 1) {
+      productsAndMeasures.push({
+        product: possibleProductAndMeasure[0].word,
+        measure: '1 штука'
+      })
+    }
+
+    console.log(possibleProductAndMeasure);
+
+    console.log()
+  }
+
   console.timeEnd('speechToProducts')
+  return productsAndMeasures
 }
 
-speechToProducts(speechText, myStem)
+// main
+(async () => {
+  console.log(await speechToProducts(speechText, myStem));
+})()
+
 
 
 function removeStopWords(speech) {
