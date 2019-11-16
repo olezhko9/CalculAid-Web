@@ -65,20 +65,26 @@ async function speechToProducts(speechText, stemmer) {
       possibleProductAndMeasure = possibleProductAndMeasure.slice(numeralIndex)
     }
 
-    const firstNounIndex = possibleProductAndMeasure.findIndex(x =>
-      x.partOfSpeech === 'сущ' && (
-      x.case === 'род' || x.case === 'вин' || x.case === 'им')
-    )
-    console.log(firstNounIndex);
+    const nounIndexes = possibleProductAndMeasure.reduce((arr, x, i) => {
+      if (x.partOfSpeech === 'сущ' && (
+        x.case === 'род' || x.case === 'вин' || x.case === 'им')) {
+        arr.push(i);
+      }
+      return arr;
+    }, [])
 
-    if (firstNounIndex === 0 && possibleProductAndMeasure.length === 1) {
+    if (nounIndexes.length === 0) continue;
+    else if (nounIndexes.length === 1) {
       productsAndMeasures.push({
-        product: possibleProductAndMeasure[0].word,
-        measure: '1 штука'
+        measure: '1 штука',
+        product: possibleProductAndMeasure.slice(nounIndexes[0]).map(x => x.word)
+      })
+    } else {
+      productsAndMeasures.push({
+        measure: possibleProductAndMeasure.slice(0, nounIndexes[0] + 1).map(x => x.word),
+        product: possibleProductAndMeasure.slice(nounIndexes[0] + 1).map(x => x.word)
       })
     }
-
-    console.log(possibleProductAndMeasure);
 
     console.log()
   }
@@ -89,9 +95,9 @@ async function speechToProducts(speechText, stemmer) {
 
 // main
 (async () => {
-  console.log(await speechToProducts(speechText, myStem));
+  const products = await speechToProducts(speechText, myStem);
+  console.log(products);
 })()
-
 
 
 function removeStopWords(speech) {
