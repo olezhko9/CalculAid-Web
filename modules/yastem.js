@@ -1,6 +1,7 @@
 const sw = require('stopword')
 const productsList = require('../static/data/data.json')
 const MyStem = require('mystem3')
+const natural = require('natural');
 
 const speechText =
   "Короче Я съела 2 куска хлеба " +
@@ -60,10 +61,12 @@ async function speechToProducts(speechText, stemmer) {
       }
     }
 
+    // convers 'числ' to numbers
     const numeralIndex = possibleProductAndMeasure.findIndex(x => x.partOfSpeech === 'числ')
     if (numeralIndex !== -1) {
       possibleProductAndMeasure = possibleProductAndMeasure.slice(numeralIndex)
     }
+    possibleProductAndMeasure = convertWordsToNum(possibleProductAndMeasure)
 
     const nounIndexes = possibleProductAndMeasure.reduce((arr, x, i) => {
       if (x.partOfSpeech === 'сущ' && (
@@ -76,10 +79,11 @@ async function speechToProducts(speechText, stemmer) {
     if (nounIndexes.length === 0) continue;
     else if (nounIndexes.length === 1) {
       productsAndMeasures.push({
-        measure: '1 штука',
+        measure: possibleProductAndMeasure.slice(0, nounIndexes[0]).map(x => x.word),
         product: possibleProductAndMeasure.slice(nounIndexes[0]).map(x => x.word)
       })
-    } else {
+    }
+    else {
       productsAndMeasures.push({
         measure: possibleProductAndMeasure.slice(0, nounIndexes[0] + 1).map(x => x.word),
         product: possibleProductAndMeasure.slice(nounIndexes[0] + 1).map(x => x.word)
@@ -185,4 +189,40 @@ function getNounCase(grammeme) {
     }
   }
   return wordCase
+}
+
+function convertWordsToNum(words) {
+  const cardinalNumbers = [
+    ["один", 1], ["одно", 1], ["два", 2], ["три", 3], ["четыре", 4], ["пять", 5],
+    ["шесть", 6], ["семь", 7], ["восемь", 8], ["девять", 9], ["десять", 10],
+    ["одиннадцать", 11], ["двенадцать", 12], ["тринадцать", 13], ["четырнадцать", 14], ["пятнадцать", 15],
+    ["шестнадцать", 16], ["семнадцать", 17], ["восемнадцать", 18], ["девятнадцать", 19], ["двадцать", 20],
+    ["тридцать", 30], ["сорок", 40], ["пятьдесят", 50], ["шестьдесят", 60], ["семьдесят", 70], ["восемьдесят", 80],
+    ["девяносто", 90], ["сто", 100], ["двести", 200], ["триста", 300], ["четыреста", 400], ["пятьсот", 500],
+    ["шестьсот", 600], ["семьсот", 700], ["восемьсот", 800], ["девятьсот", 900], ["тысяча", 1000]
+  ]
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i].lemma;
+    let number = parseInt(word)
+    if (!isNaN(number)) {
+      words[i].word = number
+      words[i].lemma = number
+      return words;
+    }
+    for (let j = 0; j < cardinalNumbers.length; j++) {
+      if (word === cardinalNumbers[j][0]) {
+        words[i].word = cardinalNumbers[j][1]
+        words[i].lemma = cardinalNumbers[j][1]
+        return words;
+      }
+    }
+  }
+
+  words.unshift({
+    word: 1,
+    lemma: 1,
+    partOfSpeech: 'числ'
+  })
+  return words;
 }
