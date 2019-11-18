@@ -79,14 +79,16 @@ async function speechToProducts(speechText, stemmer) {
     if (nounIndexes.length === 0) continue;
     else if (nounIndexes.length === 1) {
       productsAndMeasures.push({
-        measure: possibleProductAndMeasure.slice(0, nounIndexes[0]).map(x => x.word),
-        product: possibleProductAndMeasure.slice(nounIndexes[0]).map(x => x.word)
+        amount: possibleProductAndMeasure[0].word,
+        measure: possibleProductAndMeasure.slice(1, nounIndexes[0]).map(x => x.lemma).join(' '),
+        product: possibleProductAndMeasure.slice(nounIndexes[0]).map(x => x.word).join(' ')
       })
     }
     else {
       productsAndMeasures.push({
-        measure: possibleProductAndMeasure.slice(0, nounIndexes[0] + 1).map(x => x.word),
-        product: possibleProductAndMeasure.slice(nounIndexes[0] + 1).map(x => x.word)
+        amount: possibleProductAndMeasure[0].word,
+        measure: possibleProductAndMeasure.slice(1, nounIndexes[0] + 1).map(x => x.lemma).join(' '),
+        product: possibleProductAndMeasure.slice(nounIndexes[0] + 1).map(x => x.word).join(' ')
       })
     }
 
