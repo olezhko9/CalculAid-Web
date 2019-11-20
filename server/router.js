@@ -4,10 +4,7 @@ import speechToProducts from './speech-to-products'
 
 router.post('/products', async (ctx) => {
   const speech = JSON.parse(ctx.request.body).speech;
-  const products = await speechToProducts(speech)
-  ctx.body = {
-    products: products
-  }
+  ctx.body = await speechToProducts(speech)
 })
 
 export default router

@@ -10,7 +10,7 @@
       </b-field>
 
       <b-field>
-          <b-button type="is-primary" @click="processSpeech">Расчитать</b-button>
+          <b-button type="is-primary" @click="speechToProducts">Расчитать</b-button>
       </b-field>
 
     </b-field>
@@ -20,26 +20,18 @@
     </div>
 
     <div class="columns is-multiline products">
-      <div v-for="(products, index) in productsData.products" :key="index" class="column is-3">
+      <div v-for="(product, index) in products" :key="index" class="column">
         <div class="box">
-          <b>{{ productsData.quantity[index][0] }}</b>
+          <b>{{ product.amount + ' ' + product.measure }}</b>
         </div>
-        <div v-for="(product, idx) in products" :key="idx" class="box">
-          <b>{{ getProductById(product.id).name }}</b>
-          <div class="columns is-mobile">
-            <div class="column">Б: {{ getProductById(product.id).pfc.p }}</div>
-            <div class="column">Ж: {{ getProductById(product.id).pfc.f }}</div>
-            <div class="column">У: {{ getProductById(product.id).pfc.c }}</div>
-          </div>
+        <div class="box">
+          <span>{{ product.product }}</span>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import speechToText from '../modules/stemmer'
-import productsList from '../static/data/data'
-
 export default {
   components: {},
   data() {
@@ -49,38 +41,16 @@ export default {
           "а еще выпил двести миллилитров апельсинного сока " +
           "и еще выпил стакан молока " +
           "а еще я съел одно яблоко",
-      productsData: { products: [], quantity: [] },
+      products: [],
       breadUnits: 0
     }
   },
 
   async mounted() {
-    this.processSpeech()
-
-    let response = await fetch('http://localhost:3000/api/products', {
-      method: 'POST',
-      body: JSON.stringify({
-        speech: this.speech
-      })
-    })
-
-    let result = await response.json()
-    console.log(result.products);
+    await this.speechToProducts()
   },
 
   methods: {
-    processSpeech() {
-      this.breadUnits = 0
-      this.productsData = speechToText(this.speech)
-      this.productsData.products.forEach(products => {
-        this.breadUnits += this.getProductById(products[0].id).pfc.c
-      })
-    },
-
-    getProductById(id) {
-      return productsList.find(product => product.id === id)
-    },
-
     listen() {
       window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       let recognition = new window.SpeechRecognition();
@@ -89,11 +59,23 @@ export default {
       recognition.maxAlternatives = 5;
       recognition.start();
 
-      recognition.onresult = (event) => {
+      recognition.onresult = async (event) => {
         console.log(event)
         this.speech = event.results[0][0].transcript;
-        this.processSpeech()
+        await this.speechToProducts()
       };
+    },
+
+    async speechToProducts() {
+      let response = await fetch('http://localhost:3000/api/products', {
+        method: 'POST',
+        body: JSON.stringify({
+          speech: this.speech
+        })
+      })
+
+      this.products = await response.json()
+      console.log(this.products);
     }
   }
 }
