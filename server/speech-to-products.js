@@ -10,19 +10,18 @@ const speechText =
   "и еще выпил стакан молока " +
   "а еще я съел одно яблоко"
 
-const myStem = new MyStem();
 
-
-async function speechToProducts(speechText, stemmer) {
+async function speechToProducts(speechText) {
+  const stemmer = new MyStem();
   console.time('speechToProducts')
 
   // remove stop words except 'еще'
   speechText = removeStopWords(speechText)
-  console.log(speechText);
+  // console.log(speechText);
 
   // split by 'еще'
   let splittedSpeech = speechText.split('еще').map(part => part.trim())
-  console.log(splittedSpeech);
+  // console.log(splittedSpeech);
 
   // extract all grammemes for each word in each part
   let possibleProductsAndMeasures = []
@@ -92,18 +91,19 @@ async function speechToProducts(speechText, stemmer) {
       })
     }
 
-    console.log()
+    // console.log()
   }
 
   console.timeEnd('speechToProducts')
   return productsAndMeasures
 }
 
+module.exports = speechToProducts;
 // main
-(async () => {
-  const products = await speechToProducts(speechText, myStem);
-  console.log(products);
-})()
+// (async () => {
+//   const products = await speechToProducts(speechText);
+//   console.log(products);
+// })()
 
 
 function removeStopWords(speech) {
