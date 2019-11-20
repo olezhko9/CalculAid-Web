@@ -27,10 +27,19 @@
         <div class="box">
           <span>{{ product.product }}</span>
         </div>
+        <div v-for="(item, idx) in product.products" :key="idx" class="box">
+          <b>{{ item.name }}</b>
+          <div class="">
+            <p class="">Б: {{ item.pfc.p }}</p>
+            <p class="">Ж: {{ item.pfc.f }}</p>
+            <p class="">У: {{ item.pfc.c }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   components: {},
@@ -42,7 +51,16 @@ export default {
           "и еще выпил стакан молока " +
           "а еще я съел одно яблоко",
       products: [],
-      breadUnits: 0
+    }
+  },
+
+  computed: {
+    breadUnits() {
+      let bu = 0
+      for (let product of this.products) {
+        bu += product.products[0].pfc.c * product.amount / 100;
+      }
+      return bu;
     }
   },
 

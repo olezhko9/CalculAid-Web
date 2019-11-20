@@ -1,5 +1,5 @@
 const sw = require('stopword')
-const productsList = require('../static/data/data.json')
+const productsData = require('../static/data/data.json')
 const MyStem = require('mystem3')
 const natural = require('natural');
 
@@ -82,17 +82,16 @@ async function speechToProducts(speechText) {
         measure: possibleProductAndMeasure.slice(1, nounIndexes[0]).map(x => x.lemma).join(' '),
         product: possibleProductAndMeasure.slice(nounIndexes[0]).map(x => x.word).join(' ')
       })
-    }
-    else {
+    } else {
       productsAndMeasures.push({
         amount: possibleProductAndMeasure[0].word,
         measure: possibleProductAndMeasure.slice(1, nounIndexes[0] + 1).map(x => x.lemma).join(' '),
         product: possibleProductAndMeasure.slice(nounIndexes[0] + 1).map(x => x.word).join(' ')
       })
     }
-
-    // console.log()
   }
+
+  productsAndMeasures = findSimilarProducts(productsAndMeasures)
 
   console.timeEnd('speechToProducts')
   return productsAndMeasures
@@ -230,3 +229,28 @@ function convertWordsToNum(words) {
 }
 
 
+function findSimilarProducts(products) {
+  for (let i = 0; i < products.length; i++) {
+    const productName = products[i].product
+
+    const matches = productsData.reduce((arr, productInData) => {
+      const dist = natural.JaroWinklerDistance(
+        natural.PorterStemmerRu.stem(productName),
+        natural.PorterStemmerRu.stem(productInData.name)
+      )
+      if (dist >= 0.80) {
+        arr.push({
+          ...productInData
+        })
+      }
+      return arr
+        .sort((a, b) => {
+          return a.confidence - b.confidence
+        })
+        .reverse()
+    }, [])
+
+    products[i].products = matches
+  }
+  return products;
+}
