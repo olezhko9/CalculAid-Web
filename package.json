@@ -5,7 +5,7 @@
   "author": "Oleg Naumov <oleg.naumov.98@mail.ru>",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "backpack dev",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
@@ -13,6 +13,9 @@
     "precommit": "npm run lint"
   },
   "dependencies": {
+    "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
+    "koa-router": "^7.4.0",
     "mystem3": "^1.2.1",
     "natural": "^0.6.3",
     "nuxt": "^2.0.0",
@@ -22,6 +25,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
+    "backpack-core": "^0.8.4",
     "eslint": "^4.19.1",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-loader": "^2.1.1",

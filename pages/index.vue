@@ -50,8 +50,18 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
     this.processSpeech()
+
+    let response = await fetch('http://localhost:3000/api/products', {
+      method: 'POST',
+      body: JSON.stringify({
+        speech: this.speech
+      })
+    })
+
+    let result = await response.json()
+    console.log(result.products);
   },
 
   methods: {
