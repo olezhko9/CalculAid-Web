@@ -24,9 +24,6 @@
         <div class="box">
           <b>{{ product.amount + ' ' + product.measure }}</b>
         </div>
-        <div class="box">
-          <span>{{ product.product }}</span>
-        </div>
         <div v-for="(item, idx) in product.products" :key="idx" class="box">
           <b>{{ item.name }}</b>
           <div class="">
@@ -58,7 +55,8 @@ export default {
     breadUnits() {
       let bu = 0
       for (let product of this.products) {
-        bu += product.products[0].pfc.c * product.amount / 100;
+        if (product.products.length)
+          bu += product.products[0].pfc.c * product.amount / 100;
       }
       return bu;
     }
