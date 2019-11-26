@@ -3,7 +3,8 @@ const Koa = require('koa')
 const koaBody = require('koa-body')
 const { Nuxt, Builder } = require('nuxt')
 
-import router from './router'
+// import router from './router'
+const router = require('./router')
 
 async function start() {
   const app = new Koa()
