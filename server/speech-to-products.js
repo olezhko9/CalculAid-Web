@@ -69,7 +69,7 @@ async function speechToProducts(speechText) {
 
     const nounIndexes = possibleProductAndMeasure.reduce((arr, x, i) => {
       if (x.partOfSpeech === 'сущ' && (
-        x.case === 'род' || x.case === 'вин' || x.case === 'им')) {
+        x.case === 'род' || x.case === 'вин')) {
         arr.push(i);
       }
       return arr;
