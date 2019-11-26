@@ -230,27 +230,33 @@ function convertWordsToNum(words) {
 
 
 function findSimilarProducts(products) {
+  console.log(products);
   for (let i = 0; i < products.length; i++) {
-    const productName = products[i].product
-
-    const matches = productsData.reduce((arr, productInData) => {
-      const dist = natural.JaroWinklerDistance(
-        natural.PorterStemmerRu.stem(productName),
-        natural.PorterStemmerRu.stem(productInData.name)
-      )
-      if (dist >= 0.80) {
-        arr.push({
-          ...productInData
+    const productName = products[i].product.split(' ').map(natural.PorterStemmerRu.stem)
+    const matches = []
+    for (let productInData of productsData) {
+      let count = 0
+      for (let word of productName) {
+        let index = productInData.name.indexOf(word)
+        if (index !== -1) {
+          count += 10
+        } else {
+          count -= 2
+        }
+      }
+      count -= Math.abs(productName.length - productInData.name.split(' ').length)
+      if (count > 0) {
+        matches.push({
+          ...productInData,
+          confidence: count
         })
       }
-      return arr
-        .sort((a, b) => {
-          return a.confidence - b.confidence
-        })
-        .reverse()
-    }, [])
+    }
 
     products[i].products = matches
+                            .sort((a, b) => { return a.confidence - b.confidence })
+                            .reverse()
+                            .slice(0, 10)
   }
   return products;
 }
