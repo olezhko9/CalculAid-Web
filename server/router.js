@@ -4,7 +4,10 @@ const speechToProducts = require('./speech-to-products')
 
 router.post('/products', async (ctx) => {
   const speech = JSON.parse(ctx.request.body).speech;
-  ctx.body = await speechToProducts(speech)
+  const data = await speechToProducts(speech)
+  ctx.body = {
+    data
+  }
 })
 
 module.exports = router

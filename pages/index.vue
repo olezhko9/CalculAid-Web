@@ -83,14 +83,14 @@ export default {
     },
 
     async speechToProducts() {
-      let response = await fetch('http://localhost:3000/api/products', {
+      let response = await fetch('http://192.168.56.1:3000/api/products', {
         method: 'POST',
         body: JSON.stringify({
           speech: this.speech
         })
       })
 
-      this.products = await response.json()
+      this.products = (await response.json()).data
       console.log(this.products);
     }
   }
