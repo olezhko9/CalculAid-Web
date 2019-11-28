@@ -19,18 +19,34 @@
       <h1 class="title is-1 has-text-centered">{{ breadUnits.toFixed(2) }} XE</h1>
     </div>
 
-    <div class="columns is-multiline products">
-      <div v-for="(product, index) in products" :key="index" class="column">
-        <div class="box">
-          <b>{{ product.amount + ' ' + product.measure }}</b>
+    <div class="products">
+      <div v-for="(product, index) in products" :key="index" class="box product">
+        <div>
+          <b-field grouped>
+            <b-field label="Продукт">
+              <b-select v-model="selectedProducts[index]">
+                <option
+                  v-for="productItem in product.products"
+                  :key="productItem.id"
+                  :value="productItem">
+                  {{ productItem.name }}
+                </option>
+              </b-select>
+            </b-field>
+            <b-field label="Количество">
+              <b-input v-model="product.amount"></b-input>
+            </b-field>
+            <b-field label="Мера">
+              <b-select v-model="product.measure">
+                <option :value="product.measure">{{ product.measure }}</option>
+              </b-select>
+            </b-field>
+          </b-field>
         </div>
-        <div v-for="(item, idx) in product.products" :key="idx" class="box">
-          <b>{{ item.name }}</b>
-          <div class="">
-            <p class="">Б: {{ item.pfc.p }}</p>
-            <p class="">Ж: {{ item.pfc.f }}</p>
-            <p class="">У: {{ item.pfc.c }}</p>
-          </div>
+        <div>
+          <p>Б: {{ selectedProducts[index].pfc.f }}</p>
+          <p>Ж: {{ selectedProducts[index].pfc.p }}</p>
+          <p>У: {{ selectedProducts[index].pfc.c }}</p>
         </div>
       </div>
     </div>
@@ -48,15 +64,17 @@ export default {
           "и еще выпил стакан молока " +
           "а еще я съел одно яблоко",
       products: [],
+      selectedProducts: []
     }
   },
 
   computed: {
     breadUnits() {
       let bu = 0
-      for (let product of this.products) {
-        if (product.products.length)
-          bu += product.products[0].pfc.c * product.amount / 100;
+      for (let i = 0; i < this.products.length; i++) {
+        if (this.products[i].products.length) {
+          bu += this.selectedProducts[i].pfc.c * this.products[i].amount / 100;
+        }
       }
       return bu;
     }
@@ -83,7 +101,7 @@ export default {
     },
 
     async speechToProducts() {
-      let response = await fetch('http://192.168.56.1:3000/api/products', {
+      let response = await fetch('http://194.87.101.20:3000/api/products', {
         method: 'POST',
         body: JSON.stringify({
           speech: this.speech
@@ -91,6 +109,12 @@ export default {
       })
 
       this.products = (await response.json()).data
+      for (let i = 0; i < this.products.length; i++) {
+        if (this.products.length)
+          this.selectedProducts[i] = this.products[i].products[0]
+        else
+          this.selectedProducts[i] = null
+      }
       console.log(this.products);
     }
   }
@@ -98,8 +122,10 @@ export default {
 </script>
 
 <style>
-  .products {
-    margin-top: 2rem;
+  .product {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 </style>
 
