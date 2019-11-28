@@ -4,10 +4,10 @@ const MyStem = require('mystem3')
 const natural = require('natural');
 
 const speechText =
-  "Короче Я съела 2 куска хлеба " +
+  "Я съела 2 куска ржанного хлеба " +
   "еще я съел десять столовых ложек варенного риса " +
   "а еще выпил двести миллилитров апельсинного сока " +
-  "и еще выпил стакан молока " +
+  "и еще выпил стакан козьего молока " +
   "а еще я съел одно яблоко"
 
 
@@ -80,29 +80,33 @@ async function speechToProducts(speechText) {
       productsAndMeasures.push({
         amount: possibleProductAndMeasure[0].word,
         measure: possibleProductAndMeasure.slice(1, nounIndexes[0]).map(x => x.lemma).join(' '),
-        product: possibleProductAndMeasure.slice(nounIndexes[0]).map(x => x.word).join(' ')
+        product: possibleProductAndMeasure.slice(nounIndexes[0])
       })
     } else {
       productsAndMeasures.push({
         amount: possibleProductAndMeasure[0].word,
         measure: possibleProductAndMeasure.slice(1, nounIndexes[0] + 1).map(x => x.lemma).join(' '),
-        product: possibleProductAndMeasure.slice(nounIndexes[0] + 1).map(x => x.word).join(' ')
+        product: possibleProductAndMeasure.slice(nounIndexes[0] + 1)
       })
     }
   }
 
+  for (let product of productsAndMeasures) {
+    for (let productName of product.product) {
+      console.log(productName);
+    }
+    console.log()
+  }
+
   productsAndMeasures = findSimilarProducts(productsAndMeasures)
+
+  for (let i = 0; i < productsAndMeasures.length; i++) {
+    productsAndMeasures[i].product = productsAndMeasures[i].product.map(x => x.word).join(' ')
+  }
 
   console.timeEnd('speechToProducts')
   return productsAndMeasures
 }
-
-module.exports = speechToProducts;
-// main
-// (async () => {
-//   const products = await speechToProducts(speechText);
-//   console.log(products);
-// })()
 
 
 function removeStopWords(speech) {
@@ -230,25 +234,33 @@ function convertWordsToNum(words) {
 
 
 function findSimilarProducts(products) {
+  const nounScore = 10
+  const otherScore = 5
   for (let i = 0; i < products.length; i++) {
-    const productName = products[i].product.split(' ').map(natural.PorterStemmerRu.stem)
+    const productName = products[i].product
     const matches = []
     for (let productInData of productsData) {
-      let count = 0
-      // TODO: учитывать част речи при поиске, для прилагательных меньше
-      for (let word of productName) {
-        let index = productInData.name.indexOf(word)
+      let score = 0
+      const productInDataName = removeStopWords(productInData.name)
+      for (let wordData of productName) {
+        let index = productInDataName.indexOf(natural.PorterStemmerRu.stem(wordData.word))
         if (index !== -1) {
-          count += 10
+          if (wordData.partOfSpeech === 'сущ')
+            score += nounScore
+          else
+            score += otherScore
         } else {
-          count -= 2
+          if (wordData.partOfSpeech === 'сущ')
+            score -= nounScore / 2
+          else
+            score -= otherScore / 2
         }
       }
-      count -= Math.abs(productName.length - productInData.name.split(' ').length)
-      if (count > 0) {
+      score -= Math.abs(productName.length - productInDataName.split(' ').length)
+      if (score > 0) {
         matches.push({
           ...productInData,
-          confidence: count
+          confidence: score
         })
       }
     }
@@ -256,7 +268,19 @@ function findSimilarProducts(products) {
     products[i].products = matches
                             .sort((a, b) => { return a.confidence - b.confidence })
                             .reverse()
-                            .slice(0, 10)
   }
   return products;
 }
+
+// const fs = require('fs');
+// // main
+// (async () => {
+//   const products = await speechToProducts(speechText);
+//   // console.log(products);
+//   fs.writeFile ("./products.json", JSON.stringify(products), function(err) {
+//       if (err) throw err;
+//     }
+//   );
+// })()
+
+module.exports = speechToProducts;
