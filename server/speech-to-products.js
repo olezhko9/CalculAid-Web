@@ -204,7 +204,7 @@ function convertWordsToNum(words) {
   ]
 
   for (let i = 0; i < words.length; i++) {
-    const word = words[i].lemma;
+    const word = words[i].word;
     let number = parseInt(word)
     if (!isNaN(number)) {
       words[i].word = number
@@ -230,12 +230,12 @@ function convertWordsToNum(words) {
 
 
 function findSimilarProducts(products) {
-  console.log(products);
   for (let i = 0; i < products.length; i++) {
     const productName = products[i].product.split(' ').map(natural.PorterStemmerRu.stem)
     const matches = []
     for (let productInData of productsData) {
       let count = 0
+      // TODO: учитывать част речи при поиске, для прилагательных меньше
       for (let word of productName) {
         let index = productInData.name.indexOf(word)
         if (index !== -1) {
