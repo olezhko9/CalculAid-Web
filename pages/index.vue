@@ -71,20 +71,25 @@ export default {
         "и еще выпил стакан козьего молока " +
         "а еще я съел одно яблоко",
       products: [],
-      selectedProducts: []
+      selectedProducts: [],
+      breadUnits: 0,
+      cPerBreadUnit: 12
     }
   },
 
-  computed: {
-    breadUnits() {
-      let bu = 0
-      for (let i = 0; i < this.products.length; i++) {
-        if (this.products[i].products.length) {
-          bu += this.selectedProducts[i].pfc.c * this.products[i].amount / 100;
-        }
-      }
-      return bu;
-    }
+  watch: {
+    selectedProducts: {
+      handler: function () {
+        this.calcBreadUnits()
+      },
+      deep: true
+    },
+    products: {
+      handler: function () {
+        this.calcBreadUnits()
+      },
+      deep: true
+    },
   },
 
   async mounted() {
@@ -117,13 +122,28 @@ export default {
       })
 
       this.products = (await response.json()).data
+      this.processResult()
+    },
+
+    processResult() {
       for (let i = 0; i < this.products.length; i++) {
-        if (this.products.length)
+        if (this.products.length) {
           this.selectedProducts[i] = this.products[i].products[0]
-        else
+        } else {
           this.selectedProducts[i] = null
+        }
       }
-      console.log(this.products);
+      this.calcBreadUnits()
+    },
+
+    calcBreadUnits() {
+      let bu = 0
+      for (let i = 0; i < this.selectedProducts.length; i++) {
+        if (this.selectedProducts[i] && this.selectedProducts[i].measure) {
+          bu += (this.products[i].amount * this.selectedProducts[i].measure.grams) / 100 * this.selectedProducts[i].pfc.c
+        }
+      }
+      this.breadUnits = bu / this.cPerBreadUnit
     }
   }
 }
