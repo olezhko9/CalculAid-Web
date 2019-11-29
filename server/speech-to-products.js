@@ -79,29 +79,35 @@ async function speechToProducts(speechText) {
     else if (nounIndexes.length === 1) {
       productsAndMeasures.push({
         amount: possibleProductAndMeasure[0].word,
-        measure: possibleProductAndMeasure.slice(1, nounIndexes[0]).map(x => x.lemma).join(' '),
+        measure: possibleProductAndMeasure.slice(1, nounIndexes[0]),
         product: possibleProductAndMeasure.slice(nounIndexes[0])
       })
     } else {
       productsAndMeasures.push({
         amount: possibleProductAndMeasure[0].word,
-        measure: possibleProductAndMeasure.slice(1, nounIndexes[0] + 1).map(x => x.lemma).join(' '),
+        measure: possibleProductAndMeasure.slice(1, nounIndexes[0] + 1),
         product: possibleProductAndMeasure.slice(nounIndexes[0] + 1)
       })
     }
   }
 
-  for (let product of productsAndMeasures) {
-    for (let productName of product.product) {
-      console.log(productName);
-    }
-    console.log()
-  }
+  // for (let product of productsAndMeasures) {
+  //   for (let productName of product.product) {
+  //     console.log(productName);
+  //   }
+  //   console.log()
+  // }
 
   productsAndMeasures = findSimilarProducts(productsAndMeasures)
 
   for (let i = 0; i < productsAndMeasures.length; i++) {
     productsAndMeasures[i].product = productsAndMeasures[i].product.map(x => x.word).join(' ')
+    productsAndMeasures[i].measure = productsAndMeasures[i].measure.map(x => x.lemma).join(' ')
+    productsAndMeasures[i].measure = productsAndMeasures[i].measure || 'штука'
+
+    findBestMeasure(productsAndMeasures[i].measure, productsAndMeasures[i].products)
+    delete productsAndMeasures[i].product
+    delete productsAndMeasures[i].measure
   }
 
   console.timeEnd('speechToProducts')
@@ -270,6 +276,22 @@ function findSimilarProducts(products) {
                             .reverse()
   }
   return products;
+}
+
+function findBestMeasure(speechMeasure, products) {
+  for (let i = 0; i < products.length; i++) {
+    let bestMeasure = null
+    let maxConfidence = 0
+    for (let j = 0; j < products[i].measures.length; j++) {
+      let measure = products[i].measures[j]
+      const confidence = natural.JaroWinklerDistance(speechMeasure, measure.name)
+      if (confidence > maxConfidence) {
+        maxConfidence = confidence
+        bestMeasure = measure
+      }
+    }
+    products[i].measure = bestMeasure
+  }
 }
 
 // const fs = require('fs');
