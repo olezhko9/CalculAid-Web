@@ -15,8 +15,16 @@
 
     </b-field>
 
-    <div>
-      <h1 class="title is-1 has-text-centered">{{ breadUnits.toFixed(2) }} XE</h1>
+    <div class="bread-units">
+      <b-field label="Инсулина на 1 ХE" expanded>
+        <b-input v-model="insulinPerBreadUnit" expanded></b-input>
+      </b-field>
+
+      <h1 class="title is-1 has-text-centered is-marginless">{{ breadUnits}} XE</h1>
+
+      <div class="insulin">
+        <span>Необходимая доза инсулина: {{ insulinAmount }}</span>
+      </div>
     </div>
 
     <div class="products">
@@ -73,7 +81,14 @@ export default {
       products: [],
       selectedProducts: [],
       breadUnits: 0,
-      cPerBreadUnit: 12
+      cPerBreadUnit: 12,
+      insulinPerBreadUnit: 1
+    }
+  },
+
+  computed: {
+    insulinAmount() {
+      return (this.breadUnits * this.insulinPerBreadUnit).toFixed(2)
     }
   },
 
@@ -143,13 +158,24 @@ export default {
           bu += (this.products[i].amount * this.selectedProducts[i].measure.grams) / 100 * this.selectedProducts[i].pfc.c
         }
       }
-      this.breadUnits = bu / this.cPerBreadUnit
+      this.breadUnits = (bu / this.cPerBreadUnit).toFixed(2)
     }
   }
 }
 </script>
 
 <style>
+  .bread-units {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-evenly;
+  }
+
+  .insulin {
+    display: flex;
+    align-items: center;
+  }
+
   .product {
     display: flex;
     flex-direction: column;
