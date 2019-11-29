@@ -128,8 +128,10 @@ export default {
 
       recognition.onresult = async (event) => {
         console.log(event)
-        this.speech = event.results[0][0].transcript;
-        await this.speechToProducts()
+        if (event.results[event.resultIndex].isFinal) {
+          this.speech = event.results[0][0].transcript;
+          await this.speechToProducts()
+        }
       };
     },
 
