@@ -28,42 +28,48 @@
     </div>
 
     <div class="products">
-      <div v-for="(product, index) in products" :key="index" class="box product">
-        <div>
-          <b-field grouped>
-            <b-field label="Продукт" expanded>
-              <b-select v-model="selectedProducts[index]" expanded>
-                <option
-                  v-for="productItem in product.products"
-                  :key="productItem.id"
-                  :value="productItem">
-                  {{ productItem.name }}
-                </option>
-              </b-select>
-            </b-field>
+      <template v-for="(product, index) in products">
+        <div v-if="selectedProducts[index]" :key="index" class="box product">
+          <div>
+            <b-field grouped>
+              <b-field label="Продукт" expanded>
+                <b-select v-model="selectedProducts[index]" expanded>
+                  <option
+                    v-for="productItem in product.products"
+                    :key="productItem.id"
+                    :value="productItem">
+                    {{ productItem.name }}
+                  </option>
+                </b-select>
+              </b-field>
 
-            <b-field label="Количество" expanded>
-              <b-input v-model="product.amount" expanded></b-input>
-            </b-field>
+              <b-field label="Количество" expanded>
+                <b-input v-model="product.amount" expanded></b-input>
+              </b-field>
 
-            <b-field label="Мера" expanded>
-              <b-select v-model="selectedProducts[index].measure" expanded>
-                <option
-                  v-for="measure in selectedProducts[index].measures"
-                  :key="measure.id"
-                  :value="measure">
-                  {{ measure.name }} ({{ measure.grams }}г)
-                </option>
-              </b-select>
+              <b-field
+                label="Мера"
+                :type="selectedProducts[index].measure ? '' : 'is-danger'"
+                :message="selectedProducts[index].measure ? '' : 'Данный продукт не учитывается, так как нет подходящей меры'"
+                expanded>
+                <b-select v-model="selectedProducts[index].measure" expanded>
+                  <option
+                    v-for="measure in selectedProducts[index].measures"
+                    :key="measure.id"
+                    :value="measure">
+                    {{ measure.name }} ({{ measure.grams }}г)
+                  </option>
+                </b-select>
+              </b-field>
             </b-field>
-          </b-field>
+          </div>
+          <div class="product__pfc">
+            <span><b>Б</b>: {{ selectedProducts[index].pfc.f }}</span>
+            <span><b>Ж</b>: {{ selectedProducts[index].pfc.p }}</span>
+            <span><b>У</b>: {{ selectedProducts[index].pfc.c }}</span>
+          </div>
         </div>
-        <div class="product__pfc">
-          <span><b>Б</b>: {{ selectedProducts[index].pfc.f }}</span>
-          <span><b>Ж</b>: {{ selectedProducts[index].pfc.p }}</span>
-          <span><b>У</b>: {{ selectedProducts[index].pfc.c }}</span>
-        </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -82,7 +88,7 @@ export default {
       selectedProducts: [],
       breadUnits: 0,
       cPerBreadUnit: 12,
-      insulinPerBreadUnit: 1
+      insulinPerBreadUnit: 1.5
     }
   },
 
@@ -128,6 +134,9 @@ export default {
     },
 
     async speechToProducts() {
+      this.products = []
+      this.selectedProducts = []
+      this.breadUnits = 0
       let response = await fetch('http://192.168.56.1:3000/api/products', {
       // let response = await fetch('http://194.87.101.20:3000/api/products', {
         method: 'POST',
