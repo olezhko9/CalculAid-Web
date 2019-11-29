@@ -23,8 +23,8 @@
       <div v-for="(product, index) in products" :key="index" class="box product">
         <div>
           <b-field grouped>
-            <b-field label="Продукт">
-              <b-select v-model="selectedProducts[index]">
+            <b-field label="Продукт" expanded>
+              <b-select v-model="selectedProducts[index]" expanded>
                 <option
                   v-for="productItem in product.products"
                   :key="productItem.id"
@@ -33,20 +33,27 @@
                 </option>
               </b-select>
             </b-field>
-            <b-field label="Количество">
-              <b-input v-model="product.amount"></b-input>
+
+            <b-field label="Количество" expanded>
+              <b-input v-model="product.amount" expanded></b-input>
             </b-field>
-            <b-field label="Мера">
-              <b-select v-model="product.measure">
-                <option :value="product.measure">{{ product.measure }}</option>
+
+            <b-field label="Мера" expanded>
+              <b-select v-model="selectedProducts[index].measure" expanded>
+                <option
+                  v-for="measure in selectedProducts[index].measures"
+                  :key="measure.id"
+                  :value="measure">
+                  {{ measure.name }} ({{ measure.grams }}г)
+                </option>
               </b-select>
             </b-field>
           </b-field>
         </div>
-        <div>
-          <p>Б: {{ selectedProducts[index].pfc.f }}</p>
-          <p>Ж: {{ selectedProducts[index].pfc.p }}</p>
-          <p>У: {{ selectedProducts[index].pfc.c }}</p>
+        <div class="product__pfc">
+          <span><b>Б</b>: {{ selectedProducts[index].pfc.f }}</span>
+          <span><b>Ж</b>: {{ selectedProducts[index].pfc.p }}</span>
+          <span><b>У</b>: {{ selectedProducts[index].pfc.c }}</span>
         </div>
       </div>
     </div>
@@ -58,11 +65,11 @@ export default {
   components: {},
   data() {
     return {
-      speech: "Короче Я съела 2 куска хлеба " +
-          "еще я съел десять столовых ложек варенного риса " +
-          "а еще выпил двести миллилитров апельсинового сока " +
-          "и еще выпил стакан молока " +
-          "а еще я съел одно яблоко",
+      speech: "Я съел 2 куска ржаного хлеба " +
+        "еще я съел десять чайных ложек варенного риса " +
+        "а еще выпил двести миллилитров апельсинного сока " +
+        "и еще выпил стакан козьего молока " +
+        "а еще я съел одно яблоко",
       products: [],
       selectedProducts: []
     }
@@ -101,7 +108,8 @@ export default {
     },
 
     async speechToProducts() {
-      let response = await fetch('http://194.87.101.20:3000/api/products', {
+      let response = await fetch('http://192.168.56.1:3000/api/products', {
+      // let response = await fetch('http://194.87.101.20:3000/api/products', {
         method: 'POST',
         body: JSON.stringify({
           speech: this.speech
@@ -124,8 +132,12 @@ export default {
 <style>
   .product {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
+  }
+
+  .product__pfc > span {
+    margin-right: 1rem;
   }
 </style>
 
