@@ -12,6 +12,8 @@ const speechText =
 
 
 async function speechToProducts(speechText) {
+  speechText = speechText.toLowerCase().replace(/ё/g, 'е')
+
   const stemmer = new MyStem();
   console.time('speechToProducts')
 
