@@ -94,6 +94,8 @@ async function speechToProducts(speechText) {
   }
 
   // for (let product of productsAndMeasures) {
+  //   console.log(product.amount);
+  //   console.log(product.measure);
   //   for (let productName of product.product) {
   //     console.log(productName);
   //   }
@@ -103,13 +105,27 @@ async function speechToProducts(speechText) {
   productsAndMeasures = findSimilarProducts(productsAndMeasures)
 
   for (let i = 0; i < productsAndMeasures.length; i++) {
-    productsAndMeasures[i].product = productsAndMeasures[i].product.map(x => x.word).join(' ')
     productsAndMeasures[i].measure = productsAndMeasures[i].measure.map(x => x.lemma).join(' ')
     productsAndMeasures[i].measure = productsAndMeasures[i].measure || 'штука'
 
     findBestMeasure(productsAndMeasures[i].measure, productsAndMeasures[i].products)
     delete productsAndMeasures[i].product
     delete productsAndMeasures[i].measure
+
+    for (let product of productsAndMeasures[i].products) {
+      const gramsMeasure = {
+        id: 0,
+        name: 'грамм',
+        grams: 1
+      }
+      if (!product.measures.find(m => m.name === 'грамм')) {
+        product.measures.push(gramsMeasure)
+      }
+
+      if (!product.measure) {
+        product.measure = gramsMeasure
+      }
+    }
   }
 
   console.timeEnd('speechToProducts')
@@ -272,7 +288,7 @@ function findSimilarProducts(products) {
               k += (spaceAfterIndex - index - stemmedWord.length)
             }
             if (spaceBeforeIndex !== -1) {
-              k += (index - spaceBeforeIndex + 1)
+              k += (index - spaceBeforeIndex - 1)
             }
             score += nounScore - k
           }
