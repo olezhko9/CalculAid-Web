@@ -62,7 +62,7 @@ async function speechToProducts(speechText) {
       }
     }
 
-    // convers 'числ' to numbers
+    // convert 'числ' to numbers
     const numeralIndex = possibleProductAndMeasure.findIndex(x => x.partOfSpeech === 'числ')
     if (numeralIndex !== -1) {
       possibleProductAndMeasure = possibleProductAndMeasure.slice(numeralIndex)
@@ -243,18 +243,39 @@ function convertWordsToNum(words) {
 
 function findSimilarProducts(products) {
   const nounScore = 10
-  const otherScore = 5
+  const otherScore = 6
+  // для каждого найденного в речи продукта
   for (let i = 0; i < products.length; i++) {
     const productName = products[i].product
     const matches = []
+    // сравниваем с каждым продуктом в базе
     for (let productInData of productsData) {
       let score = 0
       const productInDataName = removeStopWords(productInData.name)
       for (let wordData of productName) {
-        let index = productInDataName.indexOf(natural.PorterStemmerRu.stem(wordData.word))
+        const stemmedWord = natural.PorterStemmerRu.stem(wordData.word)
+        let index = productInDataName.indexOf(stemmedWord)
         if (index !== -1) {
-          if (wordData.partOfSpeech === 'сущ')
-            score += nounScore
+          if (wordData.partOfSpeech === 'сущ') {
+            let k = 0
+            let spaceAfterIndex = productInDataName.indexOf(' ', index)
+            let spaceBeforeIndex = 0
+            let j = index - 1
+            while (j > 0) {
+              if (productInDataName[j] === ' ') {
+                spaceBeforeIndex = j
+                break;
+              }
+              j--;
+            }
+            if (spaceAfterIndex !== -1) {
+              k += (spaceAfterIndex - index - stemmedWord.length)
+            }
+            if (spaceBeforeIndex !== -1) {
+              k += (index - spaceBeforeIndex + 1)
+            }
+            score += nounScore - k
+          }
           else
             score += otherScore
         } else {
