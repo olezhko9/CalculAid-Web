@@ -22,7 +22,7 @@ html {
 }
 
 .container {
-  padding-top: 3rem;
+  padding: 3rem 1rem;
 }
 </style>
 

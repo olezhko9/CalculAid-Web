@@ -1,29 +1,39 @@
 <template>
   <div>
-    <b-field grouped position="is-centered">
+    <form @submit.prevent="speechToProducts">
+      <b-field grouped>
+        <b-input
+          v-model="speech"
+          placeholder="Напишите, что вы съели"
+          expanded>
+        </b-input>
+        <p class="control">
+          <b-button icon-right="microphone" type="is-primary" @click="listen">Рассказать</b-button>
+        </p>
+        <p class="control">
+          <b-button type="is-primary" native-type="submit">Расчитать</b-button>
+        </p>
+      </b-field>
+    </form>
 
-      <b-field expanded>
-        <b-field>
-          <b-input v-model="speech" expanded></b-input>
-          <b-button icon-left="microphone" type="is-primary" @click="listen"></b-button>
+    <div class="calculator columns is-multiline">
+      <div class="column is-3-tablet is-paddingless">
+        <b-field label="Инсулина на 1 ХE" expanded>
+          <b-numberinput
+            v-model="insulinPerBreadUnit"
+            step="0.1"
+            min="0.1">
+          </b-numberinput>
+<!--          <b-input v-model="insulinPerBreadUnit" expanded></b-input>-->
         </b-field>
-      </b-field>
+      </div>
 
-      <b-field>
-          <b-button type="is-primary" @click="speechToProducts">Расчитать</b-button>
-      </b-field>
+      <div class="bread-units column is-6-tablet is-paddingless">
+        <h1 class="title is-1 has-text-centered is-marginless">{{ breadUnits}} XE</h1>
+      </div>
 
-    </b-field>
-
-    <div class="bread-units">
-      <b-field label="Инсулина на 1 ХE" expanded>
-        <b-input v-model="insulinPerBreadUnit" expanded></b-input>
-      </b-field>
-
-      <h1 class="title is-1 has-text-centered is-marginless">{{ breadUnits}} XE</h1>
-
-      <div class="insulin">
-        <span>Необходимая доза инсулина: {{ insulinAmount }}</span>
+      <div class="insulin column is-3-tablet is-paddingless">
+        <p>Необходимая доза инсулина: <b>{{ insulinAmount }}</b> ед.</p>
       </div>
     </div>
 
@@ -67,7 +77,7 @@
                 </b-select>
               </b-field>
             </div>
-            <div class="column is-offset-1">
+            <div class="column is-offset-1-widescreen">
               <div class="product__pfc">
                 <b-field grouped group-multiline>
                   <div class="control">
@@ -212,25 +222,6 @@ export default {
 </script>
 
 <style>
-  .bread-units {
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-evenly;
-  }
 
-  .insulin {
-    display: flex;
-    align-items: center;
-  }
-
-  .product {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .product__pfc > span {
-    margin-right: 1rem;
-  }
 </style>
 

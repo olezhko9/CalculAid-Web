@@ -1,1 +1,30 @@
+.calculator {
+  margin: 2rem 0 !important;
+}
+.bread-units {
+  align-items: flex-end;
+}
 
+.bread-units .title {
+  line-height: unset;
+}
+
+.insulin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.insulin p b {
+  font-size: 24px;
+}
+
+.product {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product__pfc > span {
+  margin-right: 1rem;
+}
