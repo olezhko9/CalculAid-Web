@@ -24,7 +24,6 @@
             step="0.1"
             min="0.1">
           </b-numberinput>
-<!--          <b-input v-model="insulinPerBreadUnit" expanded></b-input>-->
         </b-field>
       </div>
 
@@ -37,9 +36,19 @@
       </div>
     </div>
 
-    <div class="products">
-      <template v-for="(product, index) in products">
-        <div v-if="selectedProducts[index]" :key="index" class="box product">
+    <div v-if="noProducts" class="content has-text-grey has-text-centered">
+      <p>
+        <b-icon
+          icon="emoticon-sad"
+          size="is-large">
+        </b-icon>
+      </p>
+      <p>Не удалось ничего распознать</p>
+    </div>
+
+    <div v-else class="products">
+      <div v-for="(product, index) in products" :key="index" class="box product">
+        <template v-if="selectedProducts[index]">
           <div class="columns">
             <div class="column is-8">
               <b-field label="Продукт" class="product_field" horizontal expanded>
@@ -113,9 +122,14 @@
               </div>
             </div>
           </div>
+        </template>
 
-        </div>
-      </template>
+        <template v-else class="box">
+          <b-message type="is-danger" has-icon>
+            Не удалось найти или распознать один из продуктов
+          </b-message>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -134,7 +148,9 @@ export default {
       selectedProducts: [],
       breadUnits: 0,
       cPerBreadUnit: 12,
-      insulinPerBreadUnit: 1.5
+      insulinPerBreadUnit: 1.5,
+
+      noProducts: false
     }
   },
 
@@ -182,11 +198,12 @@ export default {
     },
 
     async speechToProducts() {
+      this.noProducts = false
       this.products = []
       this.selectedProducts = []
       this.breadUnits = 0
-      let response = await fetch('http://192.168.56.1:3000/api/products', {
-      // let response = await fetch('http://194.87.101.20:3000/api/products', {
+      // let response = await fetch('http://192.168.56.1:3000/api/products', {
+      let response = await fetch('http://194.87.101.20:3000/api/products', {
         method: 'POST',
         body: JSON.stringify({
           speech: this.speech
@@ -198,12 +215,17 @@ export default {
     },
 
     processResult() {
+      let errorCount = 0;
       for (let i = 0; i < this.products.length; i++) {
-        if (this.products.length) {
+        if (this.products[i].products.length) {
           this.selectedProducts[i] = this.products[i].products[0]
         } else {
-          this.selectedProducts[i] = null
+          this.selectedProducts[i] = null;
+          errorCount += 1;
         }
+      }
+      if (errorCount === this.products.length) {
+        this.noProducts = true;
       }
       this.calcBreadUnits()
     },
