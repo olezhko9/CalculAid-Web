@@ -1,5 +1,6 @@
 <template>
   <div>
+    <b-loading :is-full-page="true" :active.sync="isLoading" :can-cancel="false"></b-loading>
     <form @submit.prevent="speechToProducts">
       <b-field grouped>
         <b-input
@@ -151,7 +152,8 @@ export default {
       cPerBreadUnit: 12,
       insulinPerBreadUnit: 1.5,
 
-      noProducts: false
+      noProducts: false,
+      isLoading: false
     }
   },
 
@@ -203,6 +205,7 @@ export default {
       this.products = []
       this.selectedProducts = []
       this.breadUnits = 0
+      this.isLoading = true
       // let response = await fetch('http://192.168.56.1:3000/api/products', {
       let response = await fetch('http://194.87.101.20:3000/api/products', {
         method: 'POST',
@@ -212,6 +215,7 @@ export default {
       })
 
       this.products = (await response.json()).data
+      this.isLoading = false
       this.processResult()
     },
 
