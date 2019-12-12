@@ -21,8 +21,15 @@
 
 .product {
   display: flex;
+  position: relative;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.product > .delete {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
 }
 
 .product__pfc > span {

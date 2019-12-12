@@ -36,18 +36,19 @@
       </div>
     </div>
 
-    <div v-if="noProducts" class="content has-text-grey has-text-centered">
+    <div v-if="noProducts || !selectedProducts.length" class="content has-text-grey has-text-centered">
       <p>
         <b-icon
           icon="emoticon-sad"
           size="is-large">
         </b-icon>
       </p>
-      <p>Не удалось ничего распознать</p>
+      <p>Не найдено ни одного продукта</p>
     </div>
 
     <div v-else class="products">
       <div v-for="(product, index) in products" :key="index" class="box product">
+        <button class="delete" @click="removeProduct(index)"></button>
         <template v-if="selectedProducts[index]">
           <div class="columns">
             <div class="column is-8">
@@ -238,6 +239,11 @@ export default {
         }
       }
       this.breadUnits = (bu / this.cPerBreadUnit).toFixed(2)
+    },
+
+    removeProduct(productIndex) {
+      this.products.splice(productIndex, 1);
+      this.selectedProducts.splice(productIndex, 1);
     }
   }
 }
