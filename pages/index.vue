@@ -30,9 +30,9 @@
     <div class="products">
       <template v-for="(product, index) in products">
         <div v-if="selectedProducts[index]" :key="index" class="box product">
-          <div>
-            <b-field grouped>
-              <b-field label="Продукт" expanded>
+          <div class="columns">
+            <div class="column is-8">
+              <b-field label="Продукт" class="product_field" horizontal expanded>
                 <b-select v-model="selectedProducts[index]" expanded>
                   <option
                     v-for="productItem in product.products"
@@ -43,14 +43,19 @@
                 </b-select>
               </b-field>
 
-              <b-field label="Количество" expanded>
-                <b-input v-model="product.amount" expanded></b-input>
+              <b-field label="Количество" class="product_field" horizontal expanded>
+                <b-numberinput
+                  v-model="product.amount"
+                  min="0">
+                </b-numberinput>
               </b-field>
 
               <b-field
                 label="Мера"
                 :type="selectedProducts[index].measure ? '' : 'is-danger'"
                 :message="selectedProducts[index].measure ? '' : 'Данный продукт не учитывается, так как нет подходящей меры'"
+                class="product_field"
+                horizontal
                 expanded>
                 <b-select v-model="selectedProducts[index].measure" expanded>
                   <option
@@ -61,13 +66,44 @@
                   </option>
                 </b-select>
               </b-field>
-            </b-field>
+            </div>
+            <div class="column is-offset-1">
+              <div class="product__pfc">
+                <b-field grouped group-multiline>
+                  <div class="control">
+                    <b-taglist attached>
+                      <b-tag type="is-dark">Б</b-tag>
+                      <b-tag type="is-primary">{{ selectedProducts[index].pfc.p }}</b-tag>
+                    </b-taglist>
+                  </div>
+
+                  <div class="control">
+                    <b-taglist attached>
+                      <b-tag type="is-dark">Ж</b-tag>
+                      <b-tag type="is-primary">{{ selectedProducts[index].pfc.f }}</b-tag>
+                    </b-taglist>
+                  </div>
+
+                  <div class="control">
+                    <b-taglist attached>
+                      <b-tag type="is-dark">У</b-tag>
+                      <b-tag type="is-primary">{{ selectedProducts[index].pfc.c }}</b-tag>
+                    </b-taglist>
+                  </div>
+                </b-field>
+              </div>
+              <div class="level"></div>
+              <div>
+                <b>Вес:</b> {{ product.amount * selectedProducts[index].measure.grams }} грамм
+              </div>
+              <div class="level"></div>
+              <div>
+                <b>Доля углеводов:</b>
+                {{ (product.amount * selectedProducts[index].measure.grams * selectedProducts[index].pfc.c / breadUnits / cPerBreadUnit).toFixed(0) }}%
+              </div>
+            </div>
           </div>
-          <div class="product__pfc">
-            <span><b>Б</b>: {{ selectedProducts[index].pfc.f }}</span>
-            <span><b>Ж</b>: {{ selectedProducts[index].pfc.p }}</span>
-            <span><b>У</b>: {{ selectedProducts[index].pfc.c }}</span>
-          </div>
+
         </div>
       </template>
     </div>
