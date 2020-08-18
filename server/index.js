@@ -21,8 +21,11 @@ async function start() {
   const server = https.createServer({
     key: fs.readFileSync('server.key'),
     cert: fs.readFileSync('server.cert')
-  }, app);
-  server.listen(3000, () => {console.log('Server listening on ' + host + ':' + port)})
+  }, app.callback());
+
+  server.listen(3000, () => {
+    console.log('Server listening on ' + host + ':' + port)
+  })
 }
 
 start()
