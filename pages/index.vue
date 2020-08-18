@@ -137,6 +137,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   components: {},
   data() {
@@ -206,13 +208,10 @@ export default {
       this.selectedProducts = []
       this.breadUnits = 0
       this.isLoading = true
-      // let response = await fetch('http://192.168.56.1:3000/api/products', {
-      let response = await fetch('http://194.87.101.20:3000/api/products', {
-        method: 'POST',
-        body: JSON.stringify({
-          speech: this.speech
-        })
-      })
+
+      this.products = (await axios.post('http://45.141.100.141:3000/api/products', {
+        speech: this.speech
+      })).data.data
 
       this.products = (await response.json()).data
       this.isLoading = false
