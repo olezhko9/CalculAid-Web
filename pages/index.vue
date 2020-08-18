@@ -137,8 +137,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   components: {},
   data() {
@@ -209,11 +207,10 @@ export default {
       this.breadUnits = 0
       this.isLoading = true
 
-      this.products = (await axios.post('http://45.141.100.141:3000/api/products', {
+      this.products = (await this.$axios.$post('/products', {
         speech: this.speech
-      })).data.data
+      })).data
 
-      this.products = (await response.json()).data
       this.isLoading = false
       this.processResult()
     },

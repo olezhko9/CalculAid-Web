@@ -23,8 +23,14 @@ module.exports = {
   ],
 
   modules: [
+    '@nuxtjs/axios',
     'nuxt-buefy',
   ],
+
+  axios: {
+    baseURL: 'https://calculaid.tk:3000/api',
+    retry: { retries: 3 }
+  },
   /*
   ** Build configuration
   */
