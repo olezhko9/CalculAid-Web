@@ -23,7 +23,7 @@ async function start() {
     cert: fs.readFileSync('server.cert')
   }, app.callback());
 
-  server.listen(3000, () => {
+  server.listen(port, host, () => {
     console.log('Server listening on ' + host + ':' + port)
   })
 }
