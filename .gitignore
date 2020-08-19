@@ -12,3 +12,6 @@ dist
 
 .idea
 build
+
+# Service Worker
+sw.*

@@ -10,7 +10,7 @@ module.exports = {
       { hid: 'description', name: 'description', content: 'bread units calculator' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/calculaid.png' }
     ]
   },
   /*
@@ -23,9 +23,23 @@ module.exports = {
   ],
 
   modules: [
+    '@nuxtjs/pwa',
     '@nuxtjs/axios',
     'nuxt-buefy',
   ],
+
+  pwa: {
+    manifest: {
+      name: 'CalculAid: bread units calculator',
+      short_name: 'CalculAid',
+      start_url: '/',
+      theme_color: '#7957d5',
+      display: 'standalone',
+    },
+    icon: {
+      iconSrc: './static/calculaid.png',
+    },
+  },
 
   axios: {
     baseURL: '/api',
