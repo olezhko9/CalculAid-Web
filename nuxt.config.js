@@ -28,7 +28,7 @@ module.exports = {
   ],
 
   axios: {
-    baseURL: 'https://calculaid.tk:3000/api',
+    baseURL: '/api',
     retry: { retries: 3 }
   },
   /*
